@@ -1,0 +1,257 @@
+{% schema %}
+{
+  "name": "Infinite Scroll",
+  "max_blocks": 15,
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme_1",
+      "label": "Color scheme"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Infinite horizontal scroll"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "options": [
+        {
+          "value": "h2",
+          "label": "t:sections.all.heading_size.options__1.label"
+        },
+        {
+          "value": "h1",
+          "label": "t:sections.all.heading_size.options__2.label"
+        },
+        {
+          "value": "h0",
+          "label": "t:sections.all.heading_size.options__3.label"
+        },
+        {
+          "value": "hxl",
+          "label": "t:sections.all.heading_size.options__4.label"
+        },
+        {
+          "value": "hxxl",
+          "label": "t:sections.all.heading_size.options__5.label"
+        }
+      ],
+      "default": "h2",
+      "label": "t:sections.all.heading_size.label"
+    },
+    {
+      "type": "select",
+      "id": "autoplay_speed",
+      "label": "Autoplay Speed",
+      "options": [
+        {
+          "value": "slow",
+          "label": "Slow - 60s"
+        },
+        {
+          "value": "medium",
+          "label": "Medium - 40s"
+        },
+        {
+          "value": "fast",
+          "label": "Fast - 20s"
+        },
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 36
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Upload Image"
+        },
+        {
+          "type": "checkbox",
+          "id": "invert_image",
+          "label": "Invert Image Color",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Infinite scroll",
+    }
+  ]
+}
+{% endschema %}
+
+<div class="section-{{ section.id }} color-{{ section.settings.color_scheme }} section-{{ section.id }}-padding">
+  <div class="heading page-width slider-title">
+    <h2 class="title inline-richtext 
+      {{ section.settings.heading_size }} 
+       scroll-trigger animate--slide-in"
+      >
+      {{ section.settings.heading }}
+    </h2>
+  </div>
+  <div class="scroller" data-speed="{{ section.settings.autoplay_speed }}">
+    <ul class="tag-list scroller__inner">
+      {% for block in section.blocks %}
+        {% if block.settings.image %}
+        <li>
+          <img src="{{ block.settings.image | img_url: 'medium' }}" alt="Brand logo" width="150px" height="100%" class="{% if block.settings.invert_image %}invert-image {% endif %}">
+        </li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  .section-{{ section.id }} .heading{
+    margin: 0 auto 20px;
+    text-align: center;
+  }
+
+  .section-{{ section.id }} .invert-image{
+    -webkit-filter: invert(100%);
+    filter: invert(100%);
+  }
+
+  .section-{{ section.id }} .scroller {
+    max-width: 100%;
+  }
+
+  .section-{{ section.id }} .scroller__inner {
+    padding-block: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6rem;
+  }
+
+  .section-{{ section.id }} .scroller[data-animated="true"] {
+    overflow: hidden;
+  }
+
+  .section-{{ section.id }} .scroller[data-animated="true"] .scroller__inner {
+    width: max-content;
+    flex-wrap: nowrap;
+    animation: scroll var(--_animation-duration, 40s)
+      var(--_animation-direction, forwards) linear infinite;
+  }
+
+  .scroller[data-direction="right"] {
+    --_animation-direction: reverse;
+  }
+
+  .scroller[data-direction="left"] {
+    --_animation-direction: forwards;
+  }
+
+  .scroller[data-speed="fast"] {
+    --_animation-duration: 20s;
+  }
+
+  .scroller[data-speed="medium"] {
+    --_animation-duration: 40s;
+  }
+
+  .scroller[data-speed="slow"] {
+    --_animation-duration: 60s;
+  }
+
+  @keyframes scroll {
+    to {
+      transform: translate(calc(-50% - 0.5rem));
+    }
+  }
+
+  :root {
+    --clr-neutral-100: hsl(0, 0%, 100%);
+    --clr-primary-100: hsl(205, 15%, 58%);
+    --clr-primary-400: hsl(215, 25%, 27%);
+    --clr-primary-800: hsl(217, 33%, 17%);
+    --clr-primary-900: hsl(218, 33%, 9%);
+  }
+
+  .tag-list {
+    margin: 0;
+    padding-inline: 0;
+    list-style: none;
+  }
+  .tag-list img {
+    width: 150px;
+    height: 50px;
+    object-fit: contain;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+  @media screen and (max-width: 750px) {
+    .section-slider-wrapper .slider-title {
+      width: 100%;
+    }
+    .section-slider-wrapper .swiper-slide img {
+      max-width: 110px;
+    }
+  }
+{%- endstyle -%}
+
+<script>
+const scrollers = document.querySelectorAll(".scroller");
+
+if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  addAnimation();
+}
+
+function addAnimation() {
+  scrollers.forEach((scroller) => {
+    scroller.setAttribute("data-animated", true);
+
+    const scrollerInner = scroller.querySelector(".scroller__inner");
+    const scrollerContent = Array.from(scrollerInner.children);
+
+    scrollerContent.forEach((item) => {
+      const duplicatedItem = item.cloneNode(true);
+      duplicatedItem.setAttribute("aria-hidden", true);
+      scrollerInner.appendChild(duplicatedItem);
+    });
+  });
+}
+
+</script>
